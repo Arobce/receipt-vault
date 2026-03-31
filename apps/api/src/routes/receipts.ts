@@ -4,6 +4,7 @@ import { authenticate } from "../middleware/auth";
 import { upload } from "../middleware/upload";
 import { generateS3Key, uploadToS3, getPresignedUrl } from "../services/s3";
 import { AppError } from "../middleware/errors";
+import { validate, updateReceiptSchema } from "../lib/validators";
 import { Prisma } from "@prisma/client";
 
 const router = Router();
@@ -121,7 +122,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 });
 
 // PUT /api/receipts/:id
-router.put("/:id", async (req: Request, res: Response) => {
+router.put("/:id", validate(updateReceiptSchema), async (req: Request, res: Response) => {
   const existing = await prisma.receipt.findUnique({
     where: { id: param(req, "id") },
   });

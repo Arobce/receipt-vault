@@ -3,19 +3,12 @@ import bcrypt from "bcrypt";
 import { prisma } from "../lib/prisma";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../lib/jwt";
 import { AppError } from "../middleware/errors";
+import { validate, registerSchema, loginSchema, refreshSchema } from "../lib/validators";
 
 const router = Router();
 
-router.post("/register", async (req: Request, res: Response) => {
+router.post("/register", validate(registerSchema), async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
-
-  if (!email || !password || !name) {
-    throw new AppError(400, "Email, password, and name are required");
-  }
-
-  if (password.length < 8) {
-    throw new AppError(400, "Password must be at least 8 characters");
-  }
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -34,12 +27,8 @@ router.post("/register", async (req: Request, res: Response) => {
   res.status(201).json({ user, accessToken, refreshToken });
 });
 
-router.post("/login", async (req: Request, res: Response) => {
+router.post("/login", validate(loginSchema), async (req: Request, res: Response) => {
   const { email, password } = req.body;
-
-  if (!email || !password) {
-    throw new AppError(400, "Email and password are required");
-  }
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
@@ -61,12 +50,8 @@ router.post("/login", async (req: Request, res: Response) => {
   });
 });
 
-router.post("/refresh", async (req: Request, res: Response) => {
+router.post("/refresh", validate(refreshSchema), async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
-
-  if (!refreshToken) {
-    throw new AppError(400, "Refresh token is required");
-  }
 
   let payload;
   try {
