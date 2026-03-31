@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import authRouter from "./routes/auth";
+import receiptsRouter from "./routes/receipts";
 import { errorHandler } from "./middleware/errors";
 
 const app = express();
@@ -15,6 +16,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/receipts", receiptsRouter);
 
 app.use(errorHandler);
 
