@@ -1,0 +1,33 @@
+{
+  "family": "receiptvault-api",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::111584419354:role/receiptvault-ecs-task-execution",
+  "taskRoleArn": "arn:aws:iam::111584419354:role/receiptvault-ecs-task",
+  "containerDefinitions": [{
+    "name": "api",
+    "image": "111584419354.dkr.ecr.us-east-1.amazonaws.com/receiptvault-api:latest",
+    "portMappings": [{"containerPort": 4000, "protocol": "tcp"}],
+    "environment": [
+      {"name": "PORT", "value": "4000"},
+      {"name": "CORS_ORIGIN", "value": "*"},
+      {"name": "S3_BUCKET", "value": "receiptvault-receipts-111584419354"},
+      {"name": "AWS_REGION", "value": "us-east-1"}
+    ],
+    "secrets": [
+      {"name": "DATABASE_URL", "valueFrom": "arn:aws:ssm:us-east-1:111584419354:parameter/receiptvault/database-url"},
+      {"name": "JWT_SECRET", "valueFrom": "arn:aws:ssm:us-east-1:111584419354:parameter/receiptvault/jwt-secret"},
+      {"name": "JWT_REFRESH_SECRET", "valueFrom": "arn:aws:ssm:us-east-1:111584419354:parameter/receiptvault/jwt-refresh-secret"}
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/receiptvault-api",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "api"
+      }
+    }
+  }]
+}

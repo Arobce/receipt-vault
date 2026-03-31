@@ -1,12 +1,12 @@
-FROM node:20-alpine AS builder
+FROM --platform=linux/amd64 node:20-alpine AS builder
 WORKDIR /app
 COPY package.json tsconfig.json ./
 COPY prisma ./prisma/
 COPY prisma.config.ts ./
 COPY src ./src/
-RUN npm install && npx prisma generate && npm run build
+RUN npm install && DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate && npm run build
 
-FROM node:20-alpine
+FROM --platform=linux/amd64 node:20-alpine
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules

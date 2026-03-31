@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    ECR_REPO: REPLACE_WITH_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/receiptvault-api
+    ECR_REPO: 111584419354.dkr.ecr.us-east-1.amazonaws.com/receiptvault-api
     AWS_DEFAULT_REGION: us-east-1
 
 phases:
@@ -16,7 +16,7 @@ phases:
     commands:
       - echo Building API Docker image...
       - cd apps/api
-      - docker build -t $ECR_REPO:latest -t $ECR_REPO:$IMAGE_TAG .
+      - docker build --platform linux/amd64 -t $ECR_REPO:latest -t $ECR_REPO:$IMAGE_TAG .
   post_build:
     commands:
       - echo Pushing to ECR...
