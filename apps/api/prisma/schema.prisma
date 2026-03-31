@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  receipts     Receipt[]
+}
+
+model Receipt {
+  id           String        @id @default(uuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+
+  // S3 references
+  s3Key        String
+  thumbnailKey String?
+  originalName String
+
+  // Processing status
+  status       ReceiptStatus @default(PENDING)
+
+  // Extracted data (populated by Lambda after Textract)
+  merchant     String?
+  totalAmount  Decimal?      @db.Decimal(10, 2)
+  currency     String        @default("CAD")
+  receiptDate  DateTime?
+  categoryId   String?
+  category     Category?     @relation(fields: [categoryId], references: [id])
+  rawTextract  Json?
+  lineItems    Json?
+
+  // User corrections
+  isEdited     Boolean       @default(false)
+
+  // Soft delete
+  deletedAt    DateTime?
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([userId, receiptDate])
+  @@index([userId, categoryId])
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  icon     String?
+  receipts Receipt[]
+}
+
+enum ReceiptStatus {
+  PENDING
+  PROCESSING
+  PROCESSED
+  FAILED
+}
