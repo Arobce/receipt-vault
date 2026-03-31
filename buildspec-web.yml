@@ -1,0 +1,22 @@
+version: 0.2
+
+env:
+  variables:
+    S3_BUCKET: REPLACE_WITH_FRONTEND_BUCKET_NAME
+    CLOUDFRONT_DIST_ID: REPLACE_WITH_DISTRIBUTION_ID
+    NEXT_PUBLIC_API_URL: REPLACE_WITH_API_URL
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - cd apps/web
+      - npm ci
+  build:
+    commands:
+      - npm run build
+  post_build:
+    commands:
+      - aws s3 sync out/ s3://$S3_BUCKET --delete
+      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DIST_ID --paths "/*"

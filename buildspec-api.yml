@@ -1,0 +1,26 @@
+version: 0.2
+
+env:
+  variables:
+    ECR_REPO: REPLACE_WITH_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/receiptvault-api
+    AWS_DEFAULT_REGION: us-east-1
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPO
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:-latest}
+  build:
+    commands:
+      - echo Building API Docker image...
+      - cd apps/api
+      - docker build -t $ECR_REPO:latest -t $ECR_REPO:$IMAGE_TAG .
+  post_build:
+    commands:
+      - echo Pushing to ECR...
+      - docker push $ECR_REPO:latest
+      - docker push $ECR_REPO:$IMAGE_TAG
+      - echo Updating ECS service...
+      - aws ecs update-service --cluster receiptvault --service receiptvault-api-service --force-new-deployment
