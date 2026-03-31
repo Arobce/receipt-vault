@@ -1,0 +1,5 @@
+{
+  "name": "receiptvault",
+  "private": true,
+  "workspaces": ["apps/*"]
+}
