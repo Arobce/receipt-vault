@@ -51,14 +51,17 @@ export default function ReceiptDetailPage() {
   useEffect(() => {
     if (!user || !id) return;
     setLoading(true);
-    api
-      .get<ReceiptDetail>(`/receipts/${id}`)
-      .then((data) => {
+    Promise.all([
+      api.get<ReceiptDetail>(`/receipts/${id}`),
+      api.get<Category[]>(`/receipts/categories`),
+    ])
+      .then(([data, cats]) => {
         setReceipt(data);
         setMerchant(data.merchant || "");
         setTotalAmount(data.totalAmount ? parseFloat(data.totalAmount).toString() : "");
         setReceiptDate(data.receiptDate ? data.receiptDate.split("T")[0] : "");
         setCategoryId(data.category?.id || "");
+        setCategories(cats);
       })
       .catch(() => router.push("/receipts"))
       .finally(() => setLoading(false));

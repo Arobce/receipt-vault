@@ -15,6 +15,14 @@ function param(req: Request, name: string): string {
   return Array.isArray(val) ? val[0] : val;
 }
 
+// GET /api/receipts/categories
+router.get("/categories", async (_req: Request, res: Response) => {
+  const categories = await prisma.category.findMany({
+    orderBy: { name: "asc" },
+  });
+  res.json(categories);
+});
+
 // POST /api/receipts/upload
 router.post("/upload", upload.single("receipt"), async (req: Request, res: Response) => {
   if (!req.file) {

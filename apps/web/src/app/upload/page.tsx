@@ -82,12 +82,12 @@ export default function UploadPage() {
           <p className="text-sm font-medium text-slate-700 mb-1">
             Drag and drop receipt images here
           </p>
-          <p className="text-xs text-slate-400 mb-4">JPG, PNG, HEIC, or PDF up to 10MB</p>
+          <p className="text-xs text-slate-400 mb-4">JPG, PNG, or PDF up to 10MB</p>
           <label className="inline-block cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
             Browse files
             <input
               type="file"
-              accept="image/jpeg,image/png,image/heic,application/pdf"
+              accept="image/jpeg,image/png,application/pdf"
               multiple
               onChange={handleFileInput}
               className="hidden"
