@@ -14,7 +14,12 @@ phases:
   build:
     commands:
       - DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npm run build
-      - cd dist && zip -r ../function.zip . && cd ..
+      - cp -r node_modules dist/
+      - cd dist
+      - rm -rf node_modules/@prisma/engines node_modules/prisma/libquery_engine-* node_modules/.prisma/client/libquery_engine-*
+      - find node_modules/.prisma -name "*.wasm" ! -name "*postgresql*" -delete 2>/dev/null || true
+      - zip -r ../function.zip .
+      - cd ..
   post_build:
     commands:
       - aws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://function.zip

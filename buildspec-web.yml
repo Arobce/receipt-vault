@@ -2,21 +2,26 @@ version: 0.2
 
 env:
   variables:
-    S3_BUCKET: REPLACE_WITH_FRONTEND_BUCKET_NAME
-    CLOUDFRONT_DIST_ID: REPLACE_WITH_DISTRIBUTION_ID
+    ECR_REPO: 111584419354.dkr.ecr.us-east-1.amazonaws.com/receiptvault-web
+    AWS_DEFAULT_REGION: us-east-1
     NEXT_PUBLIC_API_URL: REPLACE_WITH_API_URL
 
 phases:
-  install:
-    runtime-versions:
-      nodejs: 20
+  pre_build:
     commands:
-      - cd apps/web
-      - npm ci
+      - echo Logging in to ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPO
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:-latest}
   build:
     commands:
-      - npm run build
+      - echo Building Web Docker image...
+      - cd apps/web
+      - docker build --platform linux/amd64 --build-arg NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL -t $ECR_REPO:latest -t $ECR_REPO:$IMAGE_TAG .
   post_build:
     commands:
-      - aws s3 sync out/ s3://$S3_BUCKET --delete
-      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DIST_ID --paths "/*"
+      - echo Pushing to ECR...
+      - docker push $ECR_REPO:latest
+      - docker push $ECR_REPO:$IMAGE_TAG
+      - echo Updating ECS service...
+      - aws ecs update-service --cluster receiptvault --service receiptvault-web-service --force-new-deployment
