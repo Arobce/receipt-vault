@@ -3,6 +3,7 @@ version: 0.2
 env:
   variables:
     FUNCTION_NAME: receiptvault-processor
+    S3_BUCKET: receiptvault-lambda-deployments-111584419354
 
 phases:
   install:
@@ -14,12 +15,19 @@ phases:
   build:
     commands:
       - DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npm run build
-      - cp -r node_modules dist/
-      - cd dist
-      - rm -rf node_modules/@prisma/engines node_modules/prisma/libquery_engine-* node_modules/.prisma/client/libquery_engine-*
+      - mkdir -p pkg && cp -r dist/* pkg/
+      - cd pkg && npm init -y > /dev/null 2>&1
+      - cp ../package.json temp-pkg.json
+      - node -e "const p=require('./temp-pkg.json'); const n={dependencies:p.dependencies}; require('fs').writeFileSync('package.json',JSON.stringify(n))"
+      - npm install --production --ignore-scripts
+      - rm -rf node_modules/@prisma/engines node_modules/prisma
       - find node_modules/.prisma -name "*.wasm" ! -name "*postgresql*" -delete 2>/dev/null || true
+      - find node_modules -name "*.d.ts" -delete 2>/dev/null || true
+      - find node_modules -name "*.map" -delete 2>/dev/null || true
+      - rm -f temp-pkg.json
       - zip -r ../function.zip .
       - cd ..
   post_build:
     commands:
-      - aws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://function.zip
+      - aws s3 cp function.zip s3://$S3_BUCKET/function.zip
+      - aws lambda update-function-code --function-name $FUNCTION_NAME --s3-bucket $S3_BUCKET --s3-key function.zip
