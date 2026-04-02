@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    ECR_REPO: 111584419354.dkr.ecr.us-east-1.amazonaws.com/receiptvault-web
+    ECR_REPO: <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/receiptvault-web
     AWS_DEFAULT_REGION: us-east-1
     NEXT_PUBLIC_API_URL: REPLACE_WITH_API_URL
 

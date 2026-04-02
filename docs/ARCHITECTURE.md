@@ -56,13 +56,13 @@ Both services run on Fargate (serverless), meaning there are no EC2 instances to
 - **Engine:** PostgreSQL 16
 - **Instance:** db.t3.micro (Free Tier eligible)
 - **Storage:** 20 GB gp2
-- **Endpoint:** `receiptvault-db.cozcm228shsc.us-east-1.rds.amazonaws.com:5432`
+- **Endpoint:** `<RDS_ENDPOINT>:5432`
 - **Connection:** SSL with `sslmode=no-verify` (RDS uses self-signed certificates)
 - **Access:** Security group allows inbound on port 5432
 
 ### Amazon S3
 
-- **Bucket:** `receiptvault-receipts-111584419354`
+- **Bucket:** `receiptvault-receipts-<AWS_ACCOUNT_ID>`
 - **Purpose:** Receipt image storage
 - **Structure:** `uploads/{userId}/{uuid}.{extension}`
 - **Event Notification:** `ObjectCreated` on prefix `uploads/` triggers Lambda
@@ -80,7 +80,7 @@ Both services run on Fargate (serverless), meaning there are no EC2 instances to
 ### Application Load Balancer
 
 - **Name:** `receiptvault-alb`
-- **DNS:** `receiptvault-alb-1281619146.us-east-1.elb.amazonaws.com`
+- **DNS:** `<ALB_DNS_NAME>`
 - **Routing Rules:**
   - `/api/*` -> API target group (port 4000)
   - `/*` (default) -> Web target group (port 3000)
@@ -159,7 +159,7 @@ ALB -> ECS Fargate (receiptvault-api)
   | 3. Generates S3 key: uploads/{userId}/{uuid}.{ext}
   | 4. Uploads file to S3 bucket
   v
-Amazon S3 (receiptvault-receipts-111584419354)
+Amazon S3 (receiptvault-receipts-<AWS_ACCOUNT_ID>)
   |
   | File stored at: uploads/{userId}/{uuid}.{ext}
   v

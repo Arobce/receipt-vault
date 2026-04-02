@@ -4,22 +4,22 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
   "memory": "512",
-  "executionRoleArn": "arn:aws:iam::111584419354:role/receiptvault-ecs-task-execution",
-  "taskRoleArn": "arn:aws:iam::111584419354:role/receiptvault-ecs-task",
+  "executionRoleArn": "arn:aws:iam::<AWS_ACCOUNT_ID>:role/receiptvault-ecs-task-execution",
+  "taskRoleArn": "arn:aws:iam::<AWS_ACCOUNT_ID>:role/receiptvault-ecs-task",
   "containerDefinitions": [{
     "name": "api",
-    "image": "111584419354.dkr.ecr.us-east-1.amazonaws.com/receiptvault-api:latest",
+    "image": "<AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/receiptvault-api:latest",
     "portMappings": [{"containerPort": 4000, "protocol": "tcp"}],
     "environment": [
       {"name": "PORT", "value": "4000"},
       {"name": "CORS_ORIGIN", "value": "*"},
-      {"name": "S3_BUCKET", "value": "receiptvault-receipts-111584419354"},
+      {"name": "S3_BUCKET", "value": "receiptvault-receipts-<AWS_ACCOUNT_ID>"},
       {"name": "AWS_REGION", "value": "us-east-1"}
     ],
     "secrets": [
-      {"name": "DATABASE_URL", "valueFrom": "arn:aws:ssm:us-east-1:111584419354:parameter/receiptvault/database-url"},
-      {"name": "JWT_SECRET", "valueFrom": "arn:aws:ssm:us-east-1:111584419354:parameter/receiptvault/jwt-secret"},
-      {"name": "JWT_REFRESH_SECRET", "valueFrom": "arn:aws:ssm:us-east-1:111584419354:parameter/receiptvault/jwt-refresh-secret"}
+      {"name": "DATABASE_URL", "valueFrom": "arn:aws:ssm:us-east-1:<AWS_ACCOUNT_ID>:parameter/receiptvault/database-url"},
+      {"name": "JWT_SECRET", "valueFrom": "arn:aws:ssm:us-east-1:<AWS_ACCOUNT_ID>:parameter/receiptvault/jwt-secret"},
+      {"name": "JWT_REFRESH_SECRET", "valueFrom": "arn:aws:ssm:us-east-1:<AWS_ACCOUNT_ID>:parameter/receiptvault/jwt-refresh-secret"}
     ],
     "logConfiguration": {
       "logDriver": "awslogs",

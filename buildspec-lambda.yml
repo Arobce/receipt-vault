@@ -3,7 +3,7 @@ version: 0.2
 env:
   variables:
     FUNCTION_NAME: receiptvault-processor
-    S3_BUCKET: receiptvault-lambda-deployments-111584419354
+    S3_BUCKET: receiptvault-lambda-deployments-<AWS_ACCOUNT_ID>
 
 phases:
   install:
